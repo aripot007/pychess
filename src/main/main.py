@@ -1,6 +1,6 @@
-from Pieces import *
-from Board import Board
-from Player import Player
+from src.main.Pieces import *
+from src.main.Board import Board
+from src.main.Player import Player
 import re
 
 
