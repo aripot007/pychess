@@ -83,3 +83,9 @@ class TestPawnMoves:
 
         self.board.en_passant = (5, 3)
         assert self.board.get_cell(4, 4).can_move(5, 3)
+
+    def test_not_on_board(self):
+        # White pawn
+        piece = self.board.get_cell(1, 1)
+        self.board.remove_piece(1, 1)
+        assert not piece.can_move(2, 1)
