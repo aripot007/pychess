@@ -11,24 +11,175 @@ class Board:
         # The squares are stored from white's perspective, from rank 1 to 8 and file a to h, with cells[0][0] being the square a1 and cells[7,7] being the square h8
         self.ranks = [[None for _ in range(shape[1])] for _ in range(shape[0])]
         self.en_passant = en_passant
-        self.players = players
+        self.turn = COLOR_WHITE  # White's turn
+        self.halfmove_clock = 0
+        self.fullmove_nb = 1
+        self.white = white
+        self.black = black
+        self.players = [white, black]
         self.__init_grid_str()
 
     @classmethod
-    def from_fen(self, fen):
+    def from_fen(cls, fen):
         """
         Create a board from a FEN string.
         """
         board = Board()
 
         # Split the string in the corresponding groups
-        m = re.compile("")
-        groups = m.search(fen)
-        if groups:
-            pass
+
+        m = re.compile(r"^((?:[p,n,b,r,q,k,1-8]{1,8}/?){8}) ([w,b]) (-|(?:k?q?){2}) (-|[a-h][1-8]) ([0-9]+) ([0-9]+)", re.IGNORECASE)
+        g = m.search(fen)
+        if g:
+            board_str = g.group(1)
+            turn = g.group(2)
+            castling = g.group(3)
+            en_passant = g.group(4)
+            halfmove_clock = int(g.group(5))
+            fullmove_nb = int(g.group(6))
         else:
+            raise ValueError("Invalid FEN String")
 
+        # Create the pieces and place them on the board
+        ranks = board_str.split("/")
+        if len(ranks) != 8:
+            raise ValueError("Invalid pieces position")
 
+        pieces_types = {
+            "P": pieces.Pawn,
+            "N": pieces.Knight,
+            "B": pieces.Bishop,
+            "R": pieces.Rook,
+            "Q": pieces.Queen,
+            "K": pieces.King
+        }
+
+        for y in range(len(ranks)):
+            file = 0
+            rank = ranks[y]
+            for char in rank:
+
+                if char.isdigit():
+                    # We skip the number of squares specified
+                    file += int(char)
+                else:
+                    # We find the corresponding piece:
+                    piece_type = pieces_types.get(char.upper())
+
+                    # We get the player of the piece :
+                    player = board.white if char.isupper() else board.black
+
+                    # We add the piece to the board at the corresponding position
+                    board.add_piece(piece_type(player), 7-y, file)
+
+                    file += 1
+
+            if file != 8:
+                # Something went wrong : not enough or too many squares in this rank
+                raise ValueError("Invalid number of squares on rank "+str(y + 1)+" ('"+rank+"'). Got "+str(file + 1)+" squares instead of 8")
+
+        # Castling
+        # TODO: Better castling checks
+        if castling == "-":  # No castling
+            if board.white.king is not None:
+                board.white.king.has_moved = True
+            if board.black.king is not None:
+                board.black.king.has_moved = True
+        else:
+            # White king side (h1)
+            rook = board.get_cell(0,7)
+            if "K" not in castling and rook is not None and isinstance(rook, pieces.Rook):
+                rook.has_moved = True
+
+            # White queen side (a1)
+            rook = board.get_cell(0, 0)
+            if "Q" not in castling and rook is not None and isinstance(rook, pieces.Rook):
+                rook.has_moved = True
+
+            # Black king side (h8)
+            rook = board.get_cell(7, 7)
+            if "k" not in castling and rook is not None and isinstance(rook, pieces.Rook):
+                rook.has_moved = True
+
+            # Black queen side (a8)
+            rook = board.get_cell(7, 0)
+            if "q" not in castling and rook is not None and isinstance(rook, pieces.Rook):
+                rook.has_moved = True
+
+        board.turn = 0 if turn == "w" else 1
+        board.halfmove_clock = halfmove_clock
+        board.fullmove_nb = fullmove_nb
+
+        if en_passant == "-":
+            board.en_passant = None
+        else:
+            board.en_passant = (int(en_passant[1]) - 1, "abcdefgh".index(en_passant[0]))
+
+        return board
+
+    def to_fen(self):
+        # Encode position
+        position = ""
+        for r in range(self.shape[0] - 1, -1, -1):
+            rank = self.ranks[r]
+            empty = 0
+            for piece in rank:
+                if piece is None:
+                    empty += 1
+                else:
+                    # If there were empty cells, we write them
+                    if empty != 0:
+                        position += str(empty)
+                        empty = 0
+                    position += piece.san
+            if empty != 0:
+                position += str(empty)
+            position += "/"
+
+        # Remove the last /
+        position = position[:-1]
+
+        turn = "w" if self.turn == COLOR_WHITE else "b"
+
+        castling = ""
+        # TODO: Better checks for castling
+        # White castling
+        if self.white.king is not None and not self.white.king.has_moved:
+            # King side (h1)
+            rook = self.ranks[0][7]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "K"
+
+            # Queen side (a1)
+            rook = self.ranks[0][0]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "Q"
+
+        # Black castling
+        if self.black.king is not None and isinstance(rook, pieces.Rook) and not self.black.king.has_moved:
+            # King side (h8)
+            rook = self.ranks[7][7]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "k"
+
+            # Queen side (a8)
+            rook = self.ranks[7][0]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "q"
+
+        if castling == "":
+            castling = "-"
+
+        if self.en_passant is not None:
+            en_passant = "abcdefgh"[self.en_passant[1]] + str(self.en_passant[0] + 1)
+        else:
+            en_passant = "-"
+        halfmove = str(self.halfmove_clock)
+        fullmove_nb = str(self.fullmove_nb)
+
+        fen = position + " " + turn + " " + castling + " " + en_passant + " " + halfmove + " " + fullmove_nb
+
+        return fen
 
     def __init_grid_str(self):
         """
