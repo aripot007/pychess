@@ -330,3 +330,47 @@ class Board:
     def add_player(self, player):
         self.players.append(player)
         player.board = self
+
+    def state_equals(self, other):
+        return isinstance(other, Board) and self.__state_hash__() == other.__state_hash__()
+
+    def __state_hash__(self):
+        pos = ""
+        for rank in self.ranks:
+            for piece in rank:
+                if piece is None:
+                    pos += " "
+                else:
+                    pos += piece.san
+
+        castling = ""
+        # TODO: Better checks for castling
+        # White castling
+        if self.white.king is not None and not self.white.king.has_moved:
+            # King side (h1)
+            rook = self.ranks[0][7]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "K"
+
+            # Queen side (a1)
+            rook = self.ranks[0][0]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "Q"
+
+        # Black castling
+        if self.black.king is not None and isinstance(rook, pieces.Rook) and not self.black.king.has_moved:
+            # King side (h8)
+            rook = self.ranks[7][7]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "k"
+
+            # Queen side (a8)
+            rook = self.ranks[7][0]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "q"
+
+        return hash((self.shape, pos, self.turn, castling, self.en_passant, self.halfmove_clock, self.fullmove_nb))
+
+    def __repr__(self):
+        return "<Board shape={}, state_hash='{}' fen='{}', white={}, black={}>".format(str(self.shape), str(self.__state_hash__()), self.to_fen(), self.white
+                                                                                       , self.black)
