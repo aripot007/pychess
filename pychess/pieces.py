@@ -165,10 +165,12 @@ class Pawn(Piece):
                 self.can_move = types.MethodType(piece_type.can_move, self)
                 self.get_possible_moves = types.MethodType(piece_type.get_possible_moves, self)
                 self.move = types.MethodType(piece_type.move, self)
+                self.value = piece_type.value
 
     def on_eat(self, piece):
         self.icon = types.MethodType(Pawn.icon, self)
         self.display = types.MethodType(Pawn.display, self)
+        self.value = 1
         super().on_eat(piece)
 
 
