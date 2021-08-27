@@ -322,6 +322,11 @@ class Board:
         piece.y = y
         piece.board = self
 
+    def remove_piece(self, x, y):
+        piece = self.ranks[x][y]
+        self.ranks[x][y] = None
+        piece.board = None
+
     def add_player(self, player):
         self.players.append(player)
         player.board = self
