@@ -1,8 +1,11 @@
 import abc
 import types
+from pychess.player import COLOR_BLACK, COLOR_WHITE
 
 
 class Piece:
+
+    SAN_LETTER = "?"
 
     def __init__(self, player, value, x=None, y=None, board=None):
         self.player = player
@@ -48,8 +51,17 @@ class Piece:
     def icon(self):
         return "?"
 
+    @property
+    def san(self):
+        if self.color == COLOR_WHITE:
+            return self.SAN_LETTER.upper()
+        else:
+            return self.SAN_LETTER.lower()
+
 
 class Pawn(Piece):
+
+    SAN_LETTER = "P"
 
     def __init__(self, player, x=None, y=None):
         # Forward direction for the pawn, 1 if white, -1 if black
@@ -162,6 +174,8 @@ class Pawn(Piece):
 
 class Rook(Piece):
 
+    SAN_LETTER = "R"
+
     def __init__(self, player, x=None, y=None):
         self.has_moved = False
         super().__init__(player, 5, x, y)
@@ -248,6 +262,8 @@ class Rook(Piece):
 
 class Bishop(Piece):
 
+    SAN_LETTER = "B"
+
     def __init__(self, player, x=None, y=None):
         super().__init__(player, 3, x, y)
 
@@ -317,6 +333,8 @@ class Bishop(Piece):
 
 
 class Queen(Piece):
+
+    SAN_LETTER = "Q"
 
     def __init__(self, player, x=None, y=None):
         super().__init__(player, 9, x, y)
@@ -430,6 +448,8 @@ class Queen(Piece):
 
 class Knight(Piece):
 
+    SAN_LETTER = "N"
+
     def __init__(self, player, x=None, y=None):
         super().__init__(player, 3, x, y)
 
@@ -489,6 +509,8 @@ class Knight(Piece):
 
 
 class King(Piece):
+
+    SAN_LETTER = "K"
 
     def __init__(self, player, x=None, y=None):
         player.king = self
