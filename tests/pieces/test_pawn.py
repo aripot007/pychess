@@ -60,7 +60,7 @@ class TestPawnMoves:
         # white f3
         assert not self.board.get_cell(1, 5).can_move(2, 5)
         # black b6
-        assert not self.board.get_cell(1, 6).can_move(1, 5)
+        assert not self.board.get_cell(6, 1).can_move(5, 1)
 
     def test_take(self):
         p1 = self.board.get_cell(4, 6)
@@ -69,7 +69,7 @@ class TestPawnMoves:
 
         p2 = self.board.get_cell(5, 5)
         assert p2.can_move(4, 6)
-        assert p2.can_move(4, 7)
+        assert p2.can_move(4, 4)
 
         # Cannot take
         assert not self.board.get_cell(1, 0).can_move(2, 1)
