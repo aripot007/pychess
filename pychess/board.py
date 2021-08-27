@@ -1,11 +1,15 @@
 import re
+from pychess.player import *
+import pychess.pieces as pieces
 
 class Board:
 
-    def __init__(self, shape=(8, 8), players=[], en_passant=None):
-        # shape : (lines, columns)
+    def __init__(self, shape=(8, 8), white=Player(COLOR_WHITE), black=Player(COLOR_BLACK), en_passant=None):
+        # shape : (ranks, files)
         self.shape = shape
-        self.cells = [[None for _ in range(shape[0])] for _ in range(shape[1])]
+
+        # The squares are stored from white's perspective, from rank 1 to 8 and file a to h, with cells[0][0] being the square a1 and cells[7,7] being the square h8
+        self.ranks = [[None for _ in range(shape[1])] for _ in range(shape[0])]
         self.en_passant = en_passant
         self.players = players
         self.__init_grid_str()
@@ -54,11 +58,11 @@ class Board:
 
         self.grid_str_label = grid_str_label
 
-    def get_cell(self, col, line):
-        return self.cells[col][line]
+    def get_cell(self, rank, file):
+        return self.ranks[rank][file]
 
-    def is_valid(self, col, line):
-        return 0 <= col < self.shape[1] and 0 <= line < self.shape[0]
+    def is_valid(self, rank, file):
+        return 0 <= rank < self.shape[0] and 0 <= file < self.shape[0]
 
     def is_check(self, player, ignorepiece=None):
         king_x = player.king.x
@@ -96,16 +100,16 @@ class Board:
         :return: True if the move is illegal, otherwise False.
         """
         # We move the piece and keep in dest_piece the piece in the destination cell
-        dest_piece, self.cells[x1][y1], self.cells[x2][y2] = self.cells[x2][y2], None, self.cells[x1][y1]
-        piece = self.cells[x2][y2]
+        dest_piece, self.ranks[x1][y1], self.ranks[x2][y2] = self.ranks[x2][y2], None, self.ranks[x1][y1]
+        piece = self.ranks[x2][y2]
         piece.x = x2
         piece.y = y2
 
         check = self.is_check(player, ignorepiece=dest_piece)
 
         # We revert the board to it's original state
-        self.cells[x1][y1], self.cells[x2][y2] = self.cells[x2][y2], dest_piece
-        piece = self.cells[x1][y1]
+        self.ranks[x1][y1], self.ranks[x2][y2] = self.ranks[x2][y2], dest_piece
+        piece = self.ranks[x1][y1]
         piece.x = x1
         piece.y = y1
 
@@ -113,10 +117,12 @@ class Board:
 
     def _format_grid(self, printable_grid, label=False):
         """format the given grid to a printabe format"""
+        # Rearange the grid
         str_list = []
-        for line in range(self.shape[0] - 1, -1, -1):
-            for col in printable_grid:
-                str_list.append(col[line])
+        for r in range(len(printable_grid) - 1, -1, -1):
+            rank = printable_grid[r]
+            for square in rank:
+                str_list.append(square)
 
         if label:
             return self.grid_str_label.format(*str_list)
@@ -124,11 +130,11 @@ class Board:
 
     def print_grid(self, label=True):
         """Print the grid with all the pieces"""
-        printable_grid = [[" " for _ in range(self.shape[0])] for _ in range(self.shape[1])]
-        for col in range(self.shape[1]):
-            for line in range(self.shape[0]):
-                if self.cells[col][line] is not None:
-                    printable_grid[col][line] = self.cells[col][line].icon()
+        printable_grid = [[" " for _ in range(self.shape[1])] for _ in range(self.shape[0])]
+        for rank in range(self.shape[0]):
+            for file in range(self.shape[1]):
+                if self.ranks[rank][file] is not None:
+                    printable_grid[rank][file] = self.ranks[rank][file].icon()
 
         print(self._format_grid(printable_grid, label))
         return
@@ -147,11 +153,11 @@ class Board:
             for col in range(self.shape[1]):
                 for line in range(self.shape[0]):
 
-                    if self.cells[col][line] is not None:
-                        printable_grid[col][line] = self.cells[col][line].icon()
+                    if self.ranks[col][line] is not None:
+                        printable_grid[col][line] = self.ranks[col][line].icon()
 
                     if (col, line) in poss:
-                        if self.cells[col][line] is not None:
+                        if self.ranks[col][line] is not None:
                             printable_grid[col][line] = "❌"
                         else:
                             printable_grid[col][line] = "●"
@@ -160,7 +166,7 @@ class Board:
             return
 
     def add_piece(self, piece, x, y):
-        self.cells[x][y] = piece
+        self.ranks[x][y] = piece
         piece.x = x
         piece.y = y
         piece.board = self

@@ -7,8 +7,8 @@ class Piece:
     def __init__(self, player, value, x=None, y=None, board=None):
         self.player = player
         self.color = player.color
-        self.x = x
-        self.y = y
+        self.x = x  # The rank of the piece
+        self.y = y  # The file of the piece
         self.board = board
         self.value = value
         player.pieces.append(self)
@@ -23,13 +23,13 @@ class Piece:
     def move(self, x, y):
 
         if self.can_move(x, y):
-            self.board.cells[self.x][self.y] = None
+            self.board.ranks[self.x][self.y] = None
 
             # If there is a piece where we move, we eat it
-            if self.board.cells[x][y] is not None:
-                self.board.cells[x][y].on_eat(self)
+            if self.board.ranks[x][y] is not None:
+                self.board.ranks[x][y].on_eat(self)
 
-            self.board.cells[x][y] = self
+            self.board.ranks[x][y] = self
             self.x = x
             self.y = y
 
