@@ -1,6 +1,9 @@
+COLOR_WHITE = 0
+COLOR_BLACK = 1
+
 class Player:
 
-    def __init__(self, color, name, board=None):
+    def __init__(self, color, name="", board=None):
         self.board = None
         self.king = None
         self.pieces = []
