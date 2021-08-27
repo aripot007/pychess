@@ -4,7 +4,7 @@ import pychess.pieces as pieces
 
 class Board:
 
-    def __init__(self, shape=(8, 8), white=Player(COLOR_WHITE), black=Player(COLOR_BLACK), en_passant=None):
+    def __init__(self, shape=(8, 8), white=None, black=None, en_passant=None):
         # shape : (ranks, files)
         self.shape = shape
 
@@ -14,6 +14,10 @@ class Board:
         self.turn = COLOR_WHITE  # White's turn
         self.halfmove_clock = 0
         self.fullmove_nb = 1
+        if white is None:
+            white = Player(COLOR_WHITE)
+        if black is None:
+            black = Player(COLOR_BLACK)
         self.white = white
         self.black = black
         self.players = [white, black]
