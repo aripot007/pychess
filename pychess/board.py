@@ -216,8 +216,8 @@ class Board:
         return 0 <= rank < self.shape[0] and 0 <= file < self.shape[0]
 
     def is_check(self, player, ignorepiece=None):
-        king_x = player.king.x
-        king_y = player.king.y
+        king_x = player.king.row
+        king_y = player.king.col
         for p in self.players:
             if p == player:
                 continue
@@ -318,8 +318,8 @@ class Board:
 
     def add_piece(self, piece, x, y):
         self.ranks[x][y] = piece
-        piece.x = x
-        piece.y = y
+        piece.row = x
+        piece.col = y
         piece.board = self
 
     def remove_piece(self, x, y):
