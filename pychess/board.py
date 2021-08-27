@@ -1,15 +1,30 @@
-# ┌───┐
-# │   │
-# └───┘
+import re
 
 class Board:
 
-    def __init__(self, shape=(8, 8), players=[]):
+    def __init__(self, shape=(8, 8), players=[], en_passant=None):
         # shape : (lines, columns)
         self.shape = shape
         self.cells = [[None for _ in range(shape[0])] for _ in range(shape[1])]
+        self.en_passant = en_passant
         self.players = players
         self.__init_grid_str()
+
+    @classmethod
+    def from_fen(self, fen):
+        """
+        Create a board from a FEN string.
+        """
+        board = Board()
+
+        # Split the string in the corresponding groups
+        m = re.compile("")
+        groups = m.search(fen)
+        if groups:
+            pass
+        else:
+
+
 
     def __init_grid_str(self):
         """

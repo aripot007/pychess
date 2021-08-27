@@ -1,6 +1,6 @@
-from src.main.Pieces import *
-from src.main.Board import Board
-from src.main.Player import Player
+from pychess.pieces import *
+from pychess.board import Board
+from pychess.player import Player
 import re
 
 
