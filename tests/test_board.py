@@ -1,5 +1,4 @@
 import pytest
-import os
 from pychess.board import Board
 from pychess.pieces import *
 from pychess.player import Player
@@ -30,7 +29,9 @@ class TestBoardFen:
         self.board.fullmove_nb = 35
 
     def teardown_method(self):
-        pass
+        self.board = None
+        self.white = None
+        self.black = None
 
     def test_empty_fen_raises_exception(self):
         with pytest.raises(ValueError):
