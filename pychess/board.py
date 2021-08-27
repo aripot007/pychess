@@ -156,7 +156,7 @@ class Board:
                 castling += "Q"
 
         # Black castling
-        if self.black.king is not None and isinstance(rook, pieces.Rook) and not self.black.king.has_moved:
+        if self.black.king is not None and not self.black.king.has_moved:
             # King side (h8)
             rook = self.ranks[7][7]
             if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
@@ -358,7 +358,7 @@ class Board:
                 castling += "Q"
 
         # Black castling
-        if self.black.king is not None and isinstance(rook, pieces.Rook) and not self.black.king.has_moved:
+        if self.black.king is not None and not self.black.king.has_moved:
             # King side (h8)
             rook = self.ranks[7][7]
             if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
