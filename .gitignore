@@ -3,8 +3,12 @@ __pycache__/
 /venv/
 /pychess.egg-info/
 
+# Pytest files
+/htmlcov/
+.coverage
+.pytest_cache/
+
 # Pycharm files
 .idea/
 /shelf/
 /workspace.xml
-
