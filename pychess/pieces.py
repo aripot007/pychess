@@ -66,6 +66,7 @@ class Pawn(Piece):
     def __init__(self, player, row=None, col=None):
         # Forward direction for the pawn, 1 if white, -1 if black
         self.direction = 1 if player.color == 0 else -1
+        self.has_moved = False
         super().__init__(player, 1, row, col)
 
     def icon(self):
@@ -84,29 +85,41 @@ class Pawn(Piece):
         if not self.board.is_valid(row, col):
             return False
 
-        # The cell is two cells in front of the pawn
-        if row == self.row + 2 * self.direction and not self.has_moved and col == self.col:
+        # The cell is two cells in front of the pawn and has not moved
+        if row == self.row + 2 * self.direction and col == self.col and self.has_moved == False:
             # If one of the two cells in front of him is occupied
-            if self.board.get_cell(row, col - self.direction) is not None or self.board.get_cell(row, col) is not None:
+            if self.board.get_cell(row - self.direction, col) is not None or self.board.get_cell(row, col) is not None:
                 return False
             else:
-                # here it can move
-                pass
+                # The cells are free, we check if the pawn is in the first two ranks on his side
+                if self.direction == 1 and self.row > 1:  # White pawn
+                    return False
+
+                if self.direction == -1 and self.row < 6:  # Black pawn
+                    return False
 
         # The cell is not in the forward direction
-        elif col != self.col + self.direction:
+        elif row != self.row + self.direction:
             return False
 
         # The cell in front of the pawn is occupied
-        if row == self.row:
+        if col == self.col:
             if self.board.get_cell(row, col) is not None:
                 return False
 
-        elif row == self.row + 1 or row == self.row - 1:
+        elif col == self.col + 1 or col == self.col - 1:
             # Here, the cell is a diagonal, so there must be a piece in order to move here
             # If the cell is empty or the piece is owned by the same player, we cannot move here
             piece = self.board.get_cell(row, col)
-            if piece is None or self.player == piece.player:
+            if piece is None:
+                # The cell is empty, we check if we can en passant
+                if self.board.en_passant is not None and (row, col) == self.board.en_passant:
+                    # We can en passant
+                    pass
+                else:
+                    # We cannot move here
+                    return False
+            elif self.player == piece.player:
                 return False
 
         else:
