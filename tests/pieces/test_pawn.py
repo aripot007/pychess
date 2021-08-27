@@ -1,11 +1,13 @@
 from pychess.board import Board
-from pychess.pieces import *
 
 
 class TestPawnMoves:
 
     def setup_method(self):
         self.board = Board.from_fen("2k5/Ppppp3/B1P2p1p/4PPP1/1pp4b/3p4/PP1PPP1p/4K3 w - - 0 1")
+
+    def teardown_method(self):
+        self.board = None
 
     def test_can_move_1(self):
         # White king's pawn
