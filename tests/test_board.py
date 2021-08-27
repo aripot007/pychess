@@ -164,6 +164,8 @@ class TestBoard:
 
         assert self.board.get_cell(3, 4) is None
         assert piece.board is None
+        assert piece.row is None
+        assert piece.col is None
 
     def test_illegal_move(self):
         # Try to move white's king in front of black's queen

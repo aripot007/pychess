@@ -330,6 +330,8 @@ class Board:
         piece = self.ranks[x][y]
         self.ranks[x][y] = None
         piece.board = None
+        piece.row = None
+        piece.col = None
 
     def add_player(self, player):
         self.players.append(player)
