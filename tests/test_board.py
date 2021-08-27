@@ -205,3 +205,7 @@ class TestBoard:
         assert not board.is_pat(board.black)
         assert board.is_pat(board.white)
 
+
+class TestBoardDisplay:
+    # Todo: test display methods
+    pass
