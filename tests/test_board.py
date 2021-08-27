@@ -153,7 +153,7 @@ class TestBoard:
         piece = Pawn(self.white)
         self.board.add_piece(piece, 3, 3)
         assert self.board.get_cell(3, 3) == piece
-        assert piece.x == 3 and piece.y == 3
+        assert piece.row == 3 and piece.col == 3
         assert piece.board == self.board
 
     def test_remove_piece(self):

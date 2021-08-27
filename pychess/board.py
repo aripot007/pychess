@@ -216,15 +216,15 @@ class Board:
         return 0 <= rank < self.shape[0] and 0 <= file < self.shape[0]
 
     def is_check(self, player, ignorepiece=None):
-        king_x = player.king.row
-        king_y = player.king.col
+        king_row = player.king.row
+        king_col = player.king.col
         for p in self.players:
             if p == player:
                 continue
             for piece in p.pieces:
                 if piece == ignorepiece:
                     continue
-                if piece.can_move(king_x, king_y, ignoreillegal=True):
+                if piece.can_move(king_row, king_col, ignoreillegal=True):
                     return True
         return False
 
@@ -240,29 +240,29 @@ class Board:
         else:
             return False
 
-    def is_illegal_move(self, player, x1, y1, x2, y2):
+    def is_illegal_move(self, player, row, col, dest_row, dest_col):
         """
         Check if a move puts the player in check
         :param player: The player performing the move
-        :param x1: The piece's x  position
-        :param y1: The piece's y position
-        :param x2: The destination cell's x
-        :param y2: The destination cell's y
+        :param row: The piece's x  position
+        :param col: The piece's y position
+        :param dest_row: The destination cell's x
+        :param dest_col: The destination cell's y
         :return: True if the move is illegal, otherwise False.
         """
         # We move the piece and keep in dest_piece the piece in the destination cell
-        dest_piece, self.ranks[x1][y1], self.ranks[x2][y2] = self.ranks[x2][y2], None, self.ranks[x1][y1]
-        piece = self.ranks[x2][y2]
-        piece.x = x2
-        piece.y = y2
+        dest_piece, self.ranks[row][col], self.ranks[dest_row][dest_col] = self.ranks[dest_row][dest_col], None, self.ranks[row][col]
+        piece = self.ranks[dest_row][dest_col]
+        piece.row = dest_row
+        piece.col = dest_col
 
         check = self.is_check(player, ignorepiece=dest_piece)
 
         # We revert the board to it's original state
-        self.ranks[x1][y1], self.ranks[x2][y2] = self.ranks[x2][y2], dest_piece
-        piece = self.ranks[x1][y1]
-        piece.x = x1
-        piece.y = y1
+        self.ranks[row][col], self.ranks[dest_row][dest_col] = self.ranks[dest_row][dest_col], dest_piece
+        piece = self.ranks[row][col]
+        piece.row = row
+        piece.col = col
 
         return check
 
