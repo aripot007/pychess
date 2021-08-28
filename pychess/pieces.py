@@ -289,7 +289,7 @@ class Bishop(Piece):
 
     def can_move(self, row, col, ignoreillegal=False):
         # The piece is not on the board
-        if self.row is None or self.col is None:
+        if self.row is None or self.col is None or self.board is None:
             return False
 
         # The cell is not on the board
@@ -311,18 +311,18 @@ class Bishop(Piece):
 
         # We check if the path is not blocked by another piece
         if col > self.col:
-            ydir = 1
+            coldir = 1
         else:
-            ydir = -1
+            coldir = -1
 
         if row > self.row:
-            xdir = 1
+            rowdir = 1
         else:
-            xdir = -1
+            rowdir = -1
 
         i = 1
-        while self.row + i * xdir != row and self.row + i * xdir != col:
-            if self.board.get_cell(self.row + i * xdir, self.col + i * ydir) is not None:
+        while self.row + i * rowdir != row and self.col + i * coldir != col:
+            if self.board.get_cell(self.row + i * rowdir, self.col + i * coldir) is not None:
                 return False
             i += 1
 
