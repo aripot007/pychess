@@ -8,6 +8,9 @@ class Board:
         # shape : (ranks, files)
         self.shape = shape
 
+        # debug
+        self.debug = False
+
         # The squares are stored from white's perspective, from rank 1 to 8 and file a to h, with cells[0][0] being the square a1 and cells[7,7] being the square h8
         self.ranks = [[None for _ in range(shape[1])] for _ in range(shape[0])]
         self.en_passant = en_passant
@@ -229,6 +232,8 @@ class Board:
                 if piece == ignorepiece:
                     continue
                 if piece.can_move(king_row, king_col, ignoreillegal=True):
+                    if self.debug:
+                        print("Piece "+str(piece)+ " at "+str(piece.row)+ " " + str(piece.col) + " is checking king "+str(player.color))
                     return True
         return False
 
