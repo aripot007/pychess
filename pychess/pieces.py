@@ -207,7 +207,7 @@ class Rook(Piece):
 
     def can_move(self, row, col, ignoreillegal=False):
         # The piece is not on the board
-        if self.row is None or self.col is None:
+        if self.row is None or self.col is None or self.board is None:
             return False
 
         # The cell is not on the board
@@ -223,7 +223,7 @@ class Rook(Piece):
         if row == self.row and col == self.col:
             return False
 
-        # Column
+        # Change column
         if row == self.row:
             # We check if the path is not blocked by another piece
             if col > self.col:
@@ -231,10 +231,10 @@ class Rook(Piece):
             else:
                 direction = -1
 
-            for line in range(self.col + direction, col, direction):
-                if self.board.get_cell(self.row, line) is not None:
+            for c in range(self.col + direction, col, direction):
+                if self.board.get_cell(self.row, c) is not None:
                     return False
-        # Line
+        # Change row
         elif col == self.col:
             # We check if the path is not blocked by another piece
             if row > self.row:
@@ -242,8 +242,8 @@ class Rook(Piece):
             else:
                 direction = -1
 
-            for col in range(self.row + direction, row, direction):
-                if self.board.get_cell(col, self.col) is not None:
+            for r in range(self.row + direction, row, direction):
+                if self.board.get_cell(r, self.col) is not None:
                     return False
         else:
             return False
