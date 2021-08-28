@@ -361,7 +361,7 @@ class Queen(Piece):
 
     def can_move(self, row, col, ignoreillegal=False):
         # The piece is not on the board
-        if self.row is None or self.col is None:
+        if self.row is None or self.col is None or self.board is None:
             return False
 
         # The cell is not on the board
@@ -485,7 +485,7 @@ class Knight(Piece):
     def can_move(self, row, col, ignoreillegal=False):
 
         # The piece is not on the board
-        if self.row is None or self.col is None:
+        if self.row is None or self.col is None or self.board is None:
             return False
 
         # The cell is not on the board
@@ -539,7 +539,7 @@ class King(Piece):
 
     def can_move(self, row, col, ignoreillegal=False):
         # The piece is not on the board
-        if self.row is None or self.col is None:
+        if self.row is None or self.col is None or self.board is None:
             return False
 
         # The cell is not on the board
