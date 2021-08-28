@@ -1,0 +1,15 @@
+[run]
+omit = pychess/main.py
+
+[report]
+skip_empty = true
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    def __repr__
+    if self\.debug
+
+    # Don't complain about abstract methods, they aren't run:
+    @(abc\.)?abstractmethod
