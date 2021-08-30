@@ -49,3 +49,12 @@ class TestKnightMoves:
         assert not self.wn.can_move(1, 1)
         assert not self.wn.can_move(8, 7)
         assert not self.wn.can_move(0, -1)
+
+    def test_get_possible_moves(self):
+        # White knight on c3
+        knight = self.board.get_cell(2, 2)
+        assert set(knight.get_possible_moves()) == {(0, 1), (4, 3), (0, 3), (1, 4), (3, 0), (1, 0), (4, 1)}
+
+        # Black knight on c5
+        knight = self.board.get_cell(4, 2)
+        assert set(knight.get_possible_moves()) == {(3, 4), (6, 1), (5, 4), (5, 0), (6, 3), (2, 1), (2, 3)}

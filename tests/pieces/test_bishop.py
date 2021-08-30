@@ -56,3 +56,12 @@ class TestBishopMoves:
         assert not bishop.can_move(5, 5)
         assert not bishop.can_move(8, 7)
         assert not bishop.can_move(0, -1)
+
+    def test_get_possible_moves(self):
+        # White bishop on e4
+        bishop = self.board.get_cell(3, 4)
+        assert set(bishop.get_possible_moves()) == {(4, 3), (6, 1), (2, 3), (6, 7), (4, 5), (5, 6), (1, 6), (2, 5), (5, 2)}
+
+        # Black bishop on e5
+        bishop = self.board.get_cell(4, 4)
+        assert set(bishop.get_possible_moves()) == {(5, 5), (7, 7), (1, 1), (5, 3), (1, 7), (3, 3), (2, 6), (2, 2), (6, 6), (3, 5)}

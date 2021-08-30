@@ -78,3 +78,12 @@ class TestQueenMoves:
         assert not self.wqueen.can_move(3, 2)
         assert not self.wqueen.can_move(-1, 7)
         assert not self.bqueen.can_move(0, 8)
+
+    def test_get_possible_moves(self):
+        # White queen on e3
+        queen = self.board.get_cell(2, 4)
+        assert set(queen.get_possible_moves()) == {(4, 4), (0, 4), (3, 4), (1, 5), (1, 4), (0, 6), (2, 3), (4, 2), (0, 2), (3, 3), (2, 2), (2, 5), (1, 3), (3, 5)}
+
+        # Black queen on e5
+        queen = self.board.get_cell(4, 4)
+        assert set(queen.get_possible_moves()) == {(7, 4), (6, 2), (5, 5), (7, 1), (7, 7), (3, 4), (4, 3), (2, 4), (5, 4), (5, 3), (4, 6), (6, 4), (4, 5), (3, 3), (2, 6), (6, 6), (3, 5)}

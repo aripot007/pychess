@@ -56,3 +56,12 @@ class TestRookMoves:
         assert not rook.can_move(3, 3)
         assert not rook.can_move(2, 8)
         assert not rook.can_move(-2, 2)
+
+    def test_get_possible_moves(self):
+        # White rook on c3
+        rook = self.board.get_cell(2, 2)
+        assert set(rook.get_possible_moves()) == {(2, 4), (1, 2), (2, 7), (4, 2), (2, 3), (0, 2), (2, 6), (3, 2), (2, 5), (5, 2)}
+
+        # Black rook on c6
+        rook = self.board.get_cell(5, 2)
+        assert set(rook.get_possible_moves()) == {(6, 2), (5, 4), (5, 1), (4, 2), (5, 0), (7, 2), (2, 2), (5, 3), (3, 2)}

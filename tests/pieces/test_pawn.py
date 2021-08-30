@@ -4,6 +4,7 @@ from pychess.board import Board
 import pychess.pieces as pieces
 import pychess.signals as signals
 
+
 class TestPawnMoves:
 
     def setup_method(self):
@@ -98,6 +99,24 @@ class TestPawnMoves:
         piece = self.board.get_cell(1, 1)
         self.board.remove_piece(1, 1)
         assert not piece.can_move(2, 1)
+
+    def test_get_possible_moves(self):
+        # White pawn on e2
+        pawn = self.board.get_cell(1, 4)
+        assert set(pawn.get_possible_moves()) == {(2, 4), (3, 4), (2, 3)}
+
+        # Black pawn on d7
+        pawn = self.board.get_cell(6, 3)
+        assert set(pawn.get_possible_moves()) == {(5, 3), (5, 2), (4, 3)}
+
+        # Test en passant (black pawn on b4)
+        pawn = self.board.get_cell(3, 1)
+        self.board.en_passant = (2, 0)
+        assert set(pawn.get_possible_moves()) == {(2, 0), (2, 1)}
+
+        # Test blocked pawn (white pawn on f5)
+        pawn = self.board.get_cell(4, 5)
+        assert pawn.get_possible_moves() == []
 
     def test_promote_signals(self):
         """
