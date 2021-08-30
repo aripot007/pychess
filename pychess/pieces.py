@@ -635,6 +635,14 @@ class King(Piece):
             for y in range(self.col - 1, self.col + 2):
                 if self.can_move(x, y):
                     possible.append((x, y))
+
+        if not self.has_moved:
+            # Castling queen side
+            if self.can_move(self.row, 2):
+                possible.append((self.row, 2))
+            # Castling king side
+            if self.can_move(self.row, 6):
+                possible.append((self.row, 6))
         return possible
 
     def move(self, row, col, check=True):
