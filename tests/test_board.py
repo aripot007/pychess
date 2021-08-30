@@ -205,6 +205,35 @@ class TestBoard:
         assert not board.is_pat(board.black)
         assert board.is_pat(board.white)
 
+    def test_en_passant(self):
+        board = Board.from_fen("4k3/1pp1p3/8/5P2/3p4/8/1PP1P3/4K3 w - - 0 1")
+
+        # Test white en passant resets after a black move
+        assert board.en_passant is None
+        board.get_cell(1, 1).move(3, 1)  # b4
+        assert board.en_passant == (2, 1), "en_passant should be set to the square behind the pawn"
+        board.get_cell(6, 1).move(5, 1)  # b6
+        assert board.en_passant is None, "en_passant should be set to None after a move"
+
+        # Test white en passant resets after a black move
+        assert board.en_passant is None
+        board.get_cell(6, 2).move(4, 2)  # c5
+        assert board.en_passant == (5, 2), "en_passant should be set to the square behind the pawn"
+        board.get_cell(1, 2).move(2, 2)
+        assert board.en_passant is None, "en_passant should be set to None after a move"
+
+        # Test en passant black take
+        board.get_cell(1, 4).move(3, 4)  # e4
+        assert board.en_passant == (2, 4), "en_passant should be set to the square behind the pawn"
+        board.get_cell(3, 3).move(2, 4)
+        assert board.en_passant is None, "en_passant should be set to None after a take with en passant"
+
+        # Test en passant white take
+        board.get_cell(6, 4).move(4, 4)  # e5
+        assert board.en_passant == (5, 4), "en_passant should be set to the square behind the pawn"
+        board.get_cell(4, 5).move(5, 4)
+        assert board.en_passant is None, "en_passant should be set to None after a take with en passant"
+
 
 class TestBoardDisplay:
     # Todo: test display methods
