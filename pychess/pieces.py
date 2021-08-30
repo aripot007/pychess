@@ -586,19 +586,39 @@ class King(Piece):
 
         # The piece is not in an allowed place :
         if not ((self.row - 1 <= row <= self.row + 1) and (self.col - 1 <= col <= self.col + 1)):
-            return False
+            if not self.has_moved and row == self.row and col in (2, 6) and not self.board.is_check(self.player):
+                # King side
+                if col == 6:
+                    p = self.board.get_cell(self.row, 7)
+                    if isinstance(p, Rook) and p.player == self.player and not p.has_moved:
+                        # We check if the path is blocked or attacked by another piece
+                        if self.board.get_cell(self.row, 5) is not None or self.board.get_cell(self.row, 6) is not None:
+                            # The path is blocked
+                            return False
 
-        # TODO: déplacer au dessus + bool pour pas check la cdt quand on roque ?
-        # Roque
-        if not self.has_moved:
-            # roque droit
-            p = self.board.get_cell(7, self.col)
-            if type(p) == type(Rook) and p.player == self.player and not p.has_moved:
-                # We check if the path is not blocked by another piece
-
-                for col in range(self.row + 1, row, 1):
-                    if self.board.get_cell(col, self.col) is not None:
+                        if self.board.is_illegal_move(self.player, self.row, self.col, self.row, 5):
+                            # The path is attacked
+                            return False
+                    else:
                         return False
+
+                # Queen side
+                if col == 2:
+                    p = self.board.get_cell(self.row, 0)
+                    if isinstance(p, Rook) and p.player == self.player and not p.has_moved:
+                        # We check if the path is blocked or attacked by another piece
+                        if self.board.get_cell(self.row, 1) is not None or self.board.get_cell(self.row, 2) is not None or self.board.get_cell(self.row, 3) is not None:
+                            # The path is blocked
+                            return False
+
+                        if self.board.is_illegal_move(self.player, self.row, self.col, self.row, 3):
+                            # The path is attacked
+                            return False
+                    else:
+                        return False
+
+            else:
+                return False
 
         # We check if the move puts the player in check :
         if ignoreillegal:
@@ -619,4 +639,20 @@ class King(Piece):
 
     def move(self, row, col, check=True):
         if not check or super().move(row, col):
+            if not self.has_moved and col in (2, 6):
+                # Castling
+                if col == 2:
+                    # Queen side
+                    # Move the rook
+                    rook, self.board.ranks[self.row][0] = self.board.ranks[self.row][0], None
+                    self.board.ranks[self.row][3] = rook
+                    rook.col = 3
+
+                if col == 6:
+                    # King side
+                    # Move the rook
+                    rook, self.board.ranks[self.row][7] = self.board.ranks[self.row][7], None
+                    self.board.ranks[self.row][5] = rook
+                    rook.col = 5
+
             self.has_moved = True
