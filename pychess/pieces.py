@@ -24,11 +24,9 @@ class Piece:
     def can_move(self, row, col, ignoreillegal=False):
         pass
 
-    def move(self, row, col):
-
-        signals.PIECE_MOVE.send(self, start=(self.row, self.col), dest=(row, col))
-
-        if self.can_move(row, col):
+    def move(self, row, col, check=True):
+        if not check or self.can_move(row, col):
+            signals.PIECE_MOVE.send(self, start=(self.row, self.col), dest=(row, col))
             self.board.ranks[self.row][self.col] = None
 
             # If there is a piece where we move, we eat it
@@ -38,6 +36,10 @@ class Piece:
             self.board.ranks[row][col] = self
             self.row = row
             self.col = col
+
+            return True
+
+        return False
 
     @abc.abstractmethod
     def get_possible_moves(self):
@@ -153,7 +155,7 @@ class Pawn(Piece):
                 possible.append(c)
         return possible
 
-    def move(self, row, col):
+    def move(self, row, col, check=True):
         if self.can_move(row, col):
 
             # We check if we take en passant
@@ -218,9 +220,8 @@ class Rook(Piece):
         self.has_moved = False
         super().__init__(player, self.VALUE, row, col)
 
-    def move(self, row, col):
-        if self.can_move(row, col):
-            super(Rook, self).move(row, col)
+    def move(self, row, col, check=True):
+        if not check or super(Rook, self).move(row, col):
             self.has_moved = True
 
     def icon(self):
@@ -616,7 +617,6 @@ class King(Piece):
                     possible.append((x, y))
         return possible
 
-    def move(self, row, col):
-        if self.can_move(row, col):
-            super(King, self).move(row, col)
+    def move(self, row, col, check=True):
+        if not check or super().move(row, col):
             self.has_moved = True
