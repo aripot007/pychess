@@ -1,5 +1,8 @@
-from pychess.board import Board
+import types
 
+from pychess.board import Board
+import pychess.pieces as pieces
+import pychess.signals as signals
 
 class TestPawnMoves:
 
@@ -95,3 +98,57 @@ class TestPawnMoves:
         piece = self.board.get_cell(1, 1)
         self.board.remove_piece(1, 1)
         assert not piece.can_move(2, 1)
+
+    def test_promote_signals(self):
+        """
+        Test if the pawn emits a signal when asking for a promotion and when promoted
+        """
+        # TODO: Mock functions that asks for promotion
+        promotion_signals = []
+        promoted_signals = []
+
+        @signals.PAWN_PROMOTION.connect
+        def on_promotion(sender, **kwargs):
+            nonlocal promotion_signals
+            promotion_signals.append((sender, kwargs))
+
+        @signals.PAWN_PROMOTED.connect
+        def on_promoted(sender, **kwargs):
+            nonlocal promoted_signals
+            promoted_signals.append((sender, kwargs))
+
+        # White pawn
+        assert len(promotion_signals) == 0 and len(promoted_signals) == 0, "Signals counts should be 0 when starting this test"
+        pawn = self.board.get_cell(6, 0)
+        pawn.move(7, 0)
+        assert len(promotion_signals) == 1, "The PAWN_PROMOTION signal should be sent when a white pawn is ready for promotion"
+        assert promotion_signals[-1] == (pawn, {}), "The PAWN_PROMOTION sender should be the piece to promote, and there shouldn't be any kwargs"
+        pawn.promote(pieces.Bishop)
+        assert len(promoted_signals) == 1, "The PAWN_PROMOTED signal should be sent when a white pawn is promoted"
+        assert promoted_signals[-1] == (pawn, {"piece_type": pieces.Bishop}),\
+            "The PAWN_PROMOTED sender should be the piece promoted, and the type to promote to should be specified as piece_type"
+
+        # Black pawn
+        pawn = self.board.get_cell(1, 7)
+        pawn.move(0, 7)
+        assert len(promotion_signals) == 2, "The PAWN_PROMOTION signal should be sent when a black pawn is ready for promotion"
+        assert promotion_signals[-1] == (pawn, {}),\
+            "The PAWN_PROMOTION sender should be the piece to promote, and there shouldn't be any kwargs"
+        pawn.promote(pieces.Queen)
+        assert len(promoted_signals) == 2, "The PAWN_PROMOTED signal should be sent when a black pawn is promoted"
+        assert promoted_signals[-1] == (pawn, {"piece_type": pieces.Queen}),\
+            "The PAWN_PROMOTED sender should be the piece promoted, and the type to promote to should be specified as piece_type"
+
+    def test_promote(self):
+        """
+        Test if the pawn promotion overrides the movement and the display methods correctly
+        """
+        pawn = self.board.get_cell(6, 0)
+        pawn.promote(pieces.Rook)
+
+        assert pawn.move == types.MethodType(pieces.Rook.move, pawn), "The promotion should override the move method"
+        assert pawn.can_move == types.MethodType(pieces.Rook.can_move, pawn), "The promotion should override the can_move method"
+        assert pawn.get_possible_moves == types.MethodType(pieces.Rook.get_possible_moves, pawn), "The promotion should override the get_possible_moves method"
+        assert pawn.icon == types.MethodType(pieces.Rook.icon, pawn), "The promotion should override the icon method"
+        assert pawn.display == types.MethodType(pieces.Rook.display, pawn), "The promotion should override the display method"
+        assert pawn.value == pieces.Rook.VALUE, "The promotion should override the value propertie"
