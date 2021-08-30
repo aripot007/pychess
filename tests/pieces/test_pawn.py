@@ -78,11 +78,17 @@ class TestPawnMoves:
         assert not self.board.get_cell(6, 3).can_move(5, 4)
 
     def test_en_passant(self):
-        self.board.en_passant = (2, 0)
-        assert self.board.get_cell(3, 1).can_move(2, 0)
+        self.board.get_cell(1, 0).move(3, 0)  # Move the white pawn to a4
+        self.board.en_passant = (2, 0)  # We do not test if the en_passant field is set correctly, as this is the board's responsability
+        assert self.board.get_cell(3, 1).can_move(2, 0), "The white pawn should be able to move to the board's en passant square"
+        self.board.get_cell(3, 1).move(2, 0)  # Take
+        assert self.board.get_cell(3, 0) is None, "The white pawn taking en passant should ensure the opponent's pawn is taken"
 
+        self.board.get_cell(6, 3).move(4, 3)  # Move the black pawn to d5
         self.board.en_passant = (5, 3)
-        assert self.board.get_cell(4, 4).can_move(5, 3)
+        assert self.board.get_cell(4, 4).can_move(5, 3), "The black pawn should be able to move to the board's en passant square"
+        self.board.get_cell(4, 4).move(5, 3)  # Take
+        assert self.board.get_cell(4, 3) is None, "The black pawn taking en passant should ensure the opponent's pawn is taken"
 
     def test_not_on_board(self):
         # White pawn
