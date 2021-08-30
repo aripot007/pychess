@@ -47,9 +47,17 @@ class TestRookMoves:
     def test_get_possible_moves(self):
         # White king
         assert set(self.wk.get_possible_moves()) == {(1, 3), (1, 4)}
-
         # Black king
         assert set(self.bk.get_possible_moves()) == {(6, 3), (6, 4)}
+
+        # Remove the pawns blocking castling
+        self.board.remove_piece(1, 4)
+        self.board.remove_piece(6, 4)
+
+        # White king
+        assert set(self.wk.get_possible_moves()) == {(1, 3), (1, 4), (0, 2), (0, 3)}
+        # Black king
+        assert set(self.bk.get_possible_moves()) == {(6, 3), (6, 4), (7, 2), (7, 3)}
 
     def test_castling(self):
         assert not self.wk.can_move(0, 6), "The white king should not be able to castle because the path is blocked by a knight"  # White king side
