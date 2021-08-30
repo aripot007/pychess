@@ -155,6 +155,14 @@ class Pawn(Piece):
             super().move(row, col)
             self.has_moved = True
 
+            # We check if we take en passant
+            if self.board.en_passant is not None:
+                ep_row, ep_col = self.board.en_passant
+                if row == ep_row and col == ep_col:
+                    # Eat the opponent's pawn
+                    self.board.get_cell(row - self.direction, col).on_eat(self)
+                    self.board.ranks[row - self.direction][col] = None
+
             # We check if the pawn can promote
             if self.col == 0 or self.col == self.board.shape[0] - 1:
                 # TODO: Ask for promotion
