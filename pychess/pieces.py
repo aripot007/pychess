@@ -156,21 +156,26 @@ class Pawn(Piece):
     def move(self, row, col):
         if self.can_move(row, col):
 
-            super().move(row, col)
-            self.has_moved = True
-
             # We check if we take en passant
+            en_passant = False
             if self.board.en_passant is not None:
                 ep_row, ep_col = self.board.en_passant
                 if row == ep_row and col == ep_col:
-                    # Eat the opponent's pawn
-                    self.board.get_cell(row - self.direction, col).on_eat(self)
-                    self.board.ranks[row - self.direction][col] = None
+                    en_passant = True
+
+            super().move(row, col, check=False)
+            self.has_moved = True
+
+            if en_passant:
+                # Eat the opponent's pawn
+                self.board.get_cell(row - self.direction, col).on_eat(self)
+                self.board.ranks[row - self.direction][col] = None
 
             # We check if the pawn can promote
-            if self.row == 0 or self.row == self.board.shape[0] - 1:
+            if row == 0 or row == self.board.shape[0] - 1:
                 signals.PAWN_PROMOTION.send(self)
                 # TODO: Ask for promotion
+                """
                 # Fix issue with icon not being set because icon is a property ?
                 print("Promote pawn to :")
                 print("1: Knight   2: Bishop   3: Rook   4: Queen")
@@ -185,6 +190,7 @@ class Pawn(Piece):
                         print("Please enter a valid choice !")
                 piece_type = [Knight, Bishop, Rook, Queen][choice - 1]
                 self.promote(piece_type)
+                """
 
     def promote(self, piece_type):
         # Override instance methods to the ones of the piece promoted to
