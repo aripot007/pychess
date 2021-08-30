@@ -62,12 +62,13 @@ class Piece:
 class Pawn(Piece):
 
     SAN_LETTER = "P"
+    VALUE = 1
 
     def __init__(self, player, row=None, col=None):
         # Forward direction for the pawn, 1 if white, -1 if black
         self.direction = 1 if player.color == 0 else -1
         self.has_moved = False
-        super().__init__(player, 1, row, col)
+        super().__init__(player, self.VALUE, row, col)
 
     def icon(self):
         if self.color == 0:
@@ -177,7 +178,7 @@ class Pawn(Piece):
                 self.can_move = types.MethodType(piece_type.can_move, self)
                 self.get_possible_moves = types.MethodType(piece_type.get_possible_moves, self)
                 self.move = types.MethodType(piece_type.move, self)
-                self.value = piece_type.value
+                self.value = piece_type.VALUE
 
     def on_eat(self, piece):
         self.icon = types.MethodType(Pawn.icon, self)
@@ -189,10 +190,11 @@ class Pawn(Piece):
 class Rook(Piece):
 
     SAN_LETTER = "R"
+    VALUE = 5
 
     def __init__(self, player, row=None, col=None):
         self.has_moved = False
-        super().__init__(player, 5, row, col)
+        super().__init__(player, self.VALUE, row, col)
 
     def move(self, row, col):
         if self.can_move(row, col):
@@ -277,9 +279,10 @@ class Rook(Piece):
 class Bishop(Piece):
 
     SAN_LETTER = "B"
+    VALUE = 3
 
     def __init__(self, player, row=None, col=None):
-        super().__init__(player, 3, row, col)
+        super().__init__(player, self.VALUE, row, col)
 
     def icon(self):
         if self.color == 0:
@@ -349,9 +352,10 @@ class Bishop(Piece):
 class Queen(Piece):
 
     SAN_LETTER = "Q"
+    VALUE = 9
 
     def __init__(self, player, row=None, col=None):
-        super().__init__(player, 9, row, col)
+        super().__init__(player, self.VALUE, row, col)
 
     def icon(self):
         if self.color == 0:
@@ -463,9 +467,10 @@ class Queen(Piece):
 class Knight(Piece):
 
     SAN_LETTER = "N"
+    VALUE = 3
 
     def __init__(self, player, row=None, col=None):
-        super().__init__(player, 3, row, col)
+        super().__init__(player, self.VALUE, row, col)
 
     def icon(self):
         if self.color == 0:
@@ -525,11 +530,12 @@ class Knight(Piece):
 class King(Piece):
 
     SAN_LETTER = "K"
+    VALUE = 0
 
     def __init__(self, player, row=None, col=None):
         player.king = self
         self.has_moved = False
-        super().__init__(player, 0, row, col)
+        super().__init__(player, self.VALUE, row, col)
 
     def icon(self):
         if self.color == 0:
