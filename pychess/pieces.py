@@ -1,7 +1,9 @@
 import abc
 import types
 from pychess.player import COLOR_BLACK, COLOR_WHITE
+from blinker import signal
 
+SIGNAL_PIECE_MOVE = signal("piece_move")
 
 class Piece:
 
@@ -25,6 +27,8 @@ class Piece:
 
     def move(self, row, col):
 
+        SIGNAL_PIECE_MOVE.send(self, start=(self.row, self.col), dest=(row, col))
+
         if self.can_move(row, col):
             self.board.ranks[self.row][self.col] = None
 
@@ -41,6 +45,7 @@ class Piece:
         pass
 
     def on_eat(self, piece):
+
         self.row = None
         self.col = None
         piece.player.eaten.append(self)
@@ -164,7 +169,9 @@ class Pawn(Piece):
                     self.board.ranks[row - self.direction][col] = None
 
             # We check if the pawn can promote
-            if self.col == 0 or self.col == self.board.shape[0] - 1:
+            if self.row == 0 or self.row == self.board.shape[0] - 1:
+                promote_event = signal("pawn_promote")
+                promote_event.send(self)
                 # TODO: Ask for promotion
                 # Fix issue with icon not being set because icon is a property ?
                 print("Promote pawn to :")
@@ -179,14 +186,16 @@ class Pawn(Piece):
                         choice = None
                         print("Please enter a valid choice !")
                 piece_type = [Knight, Bishop, Rook, Queen][choice - 1]
+                self.promote(piece_type)
 
-                # Override instance methods to the ones of the piece promoted to
-                self.icon = types.MethodType(piece_type.icon, self)
-                self.display = types.MethodType(piece_type.display, self)
-                self.can_move = types.MethodType(piece_type.can_move, self)
-                self.get_possible_moves = types.MethodType(piece_type.get_possible_moves, self)
-                self.move = types.MethodType(piece_type.move, self)
-                self.value = piece_type.VALUE
+    def promote(self, piece_type):
+        # Override instance methods to the ones of the piece promoted to
+        self.icon = types.MethodType(piece_type.icon, self)
+        self.display = types.MethodType(piece_type.display, self)
+        self.can_move = types.MethodType(piece_type.can_move, self)
+        self.get_possible_moves = types.MethodType(piece_type.get_possible_moves, self)
+        self.move = types.MethodType(piece_type.move, self)
+        self.value = piece_type.VALUE
 
     def on_eat(self, piece):
         self.icon = types.MethodType(Pawn.icon, self)
