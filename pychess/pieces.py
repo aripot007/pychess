@@ -1,9 +1,8 @@
 import abc
 import types
 from pychess.player import COLOR_BLACK, COLOR_WHITE
-from blinker import signal
+import pychess.signals as signals
 
-SIGNAL_PIECE_MOVE = signal("piece_move")
 
 class Piece:
 
@@ -27,7 +26,7 @@ class Piece:
 
     def move(self, row, col):
 
-        SIGNAL_PIECE_MOVE.send(self, start=(self.row, self.col), dest=(row, col))
+        signals.PIECE_MOVE.send(self, start=(self.row, self.col), dest=(row, col))
 
         if self.can_move(row, col):
             self.board.ranks[self.row][self.col] = None
@@ -45,7 +44,7 @@ class Piece:
         pass
 
     def on_eat(self, piece):
-
+        signals.PIECE_TAKEN.send(self, attacker=piece)
         self.row = None
         self.col = None
         piece.player.eaten.append(self)
@@ -170,8 +169,7 @@ class Pawn(Piece):
 
             # We check if the pawn can promote
             if self.row == 0 or self.row == self.board.shape[0] - 1:
-                promote_event = signal("pawn_promote")
-                promote_event.send(self)
+                signals.PAWN_PROMOTION.send(self)
                 # TODO: Ask for promotion
                 # Fix issue with icon not being set because icon is a property ?
                 print("Promote pawn to :")
@@ -196,6 +194,7 @@ class Pawn(Piece):
         self.get_possible_moves = types.MethodType(piece_type.get_possible_moves, self)
         self.move = types.MethodType(piece_type.move, self)
         self.value = piece_type.VALUE
+        signals.PAWN_PROMOTED.send(self, piece_type=piece_type)
 
     def on_eat(self, piece):
         self.icon = types.MethodType(Pawn.icon, self)
