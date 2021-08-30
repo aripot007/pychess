@@ -1,6 +1,8 @@
 import re
 from pychess.player import *
 import pychess.pieces as pieces
+import pychess.signals as signals
+
 
 class Board:
 
@@ -25,6 +27,7 @@ class Board:
         self.black = black
         self.players = [white, black]
         self.__init_grid_str()
+        self.__init_event_handlers__()
 
     @classmethod
     def from_fen(cls, fen):
@@ -188,6 +191,14 @@ class Board:
 
         return fen
 
+    def _on_piece_move(self, piece, **kwargs):
+        start_row, start_col = kwargs["start"]
+        dest_row, dest_col = kwargs["dest"]
+        if isinstance(piece, pieces.Pawn) and dest_row == start_row + 2 * piece.direction:
+            self.en_passant = (dest_row - piece.direction, dest_col)
+        else:
+            self.en_passant = None
+
     def __init_grid_str(self):
         """
         Initialize the format strings for printing the board.
@@ -215,6 +226,14 @@ class Board:
         grid_str_label += "   └─────" + (self.shape[1] - 1) * "┴─────" + "┘\n"
 
         self.grid_str_label = grid_str_label
+
+    def __init_event_handlers__(self):
+
+        # Piece move event
+        def handle_piece_move(sender, **kwargs):
+            self._on_piece_move(sender, **kwargs)
+        self.handle_piece_move = handle_piece_move
+        signals.PIECE_MOVE.connect(handle_piece_move)
 
     def get_cell(self, rank, file):
         return self.ranks[rank][file]
