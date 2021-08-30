@@ -144,9 +144,9 @@ class Pawn(Piece):
             return []
 
         # Every cell where the pawn could move
-        allowed = [(self.row + i, self.col + self.direction) for i in range(-1, 2)]
-        if not self.has_moved:
-            allowed.append((self.row, self.col + 2 * self.direction))
+        allowed = [(self.row + self.direction, self.col + i) for i in range(-1, 2)]
+        if not self.has_moved and (self.row == 1 or self.row == self.board.shape[0] - 2):
+            allowed.append((self.row + 2 * self.direction, self.col))
 
         # Check if they can move in the possible cells
         possible = []
