@@ -176,23 +176,6 @@ class Pawn(Piece):
             # We check if the pawn can promote
             if row == 0 or row == self.board.shape[0] - 1:
                 signals.PAWN_PROMOTION.send(self)
-                # TODO: Ask for promotion
-                """
-                # Fix issue with icon not being set because icon is a property ?
-                print("Promote pawn to :")
-                print("1: Knight   2: Bishop   3: Rook   4: Queen")
-                choice = None
-                while choice is None:
-                    try:
-                        choice = int(input("Choice : "))
-                        if choice not in (1, 2, 3, 4):
-                            raise Exception
-                    except:
-                        choice = None
-                        print("Please enter a valid choice !")
-                piece_type = [Knight, Bishop, Rook, Queen][choice - 1]
-                self.promote(piece_type)
-                """
 
     def promote(self, piece_type):
         # Override instance methods to the ones of the piece promoted to
