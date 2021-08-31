@@ -7,6 +7,7 @@ import pychess.signals as signals
 class Board:
 
     def __init__(self, shape=(8, 8), white=None, black=None, en_passant=None):
+        # TODO: Use @property for white and black players, to set and remove their board when set / unset
         # shape : (ranks, files)
         self.shape = shape
 
@@ -24,17 +25,19 @@ class Board:
         if black is None:
             black = Player(COLOR_BLACK)
         self.white = white
+        self.white.board = self
         self.black = black
+        self.black.board = self
         self.players = [white, black]
         self.__init_grid_str()
         self.__init_event_handlers__()
 
     @classmethod
-    def from_fen(cls, fen):
+    def from_fen(cls, fen, white=None, black=None):
         """
         Create a board from a FEN string.
         """
-        board = Board()
+        board = Board(white=white, black=black)
 
         # Split the string in the corresponding groups
 
@@ -191,6 +194,15 @@ class Board:
 
         return fen
 
+    def next_turn(self):
+        if self.turn == COLOR_WHITE:
+            self.turn = COLOR_BLACK
+            if self.fullmove_nb != 1:
+                self.fullmove_nb += 1
+        else:
+            self.turn = COLOR_WHITE
+            self.fullmove_nb += 1
+
     def _on_piece_move(self, piece, **kwargs):
         start_row, start_col = kwargs["start"]
         dest_row, dest_col = kwargs["dest"]
@@ -198,6 +210,15 @@ class Board:
             self.en_passant = (dest_row - piece.direction, dest_col)
         else:
             self.en_passant = None
+
+        # Increment the halfmove clock
+        if self.turn == COLOR_BLACK and not isinstance(piece, pieces.Pawn):
+            # We increment only after black's turn because here a "move" consists of a player completing a turn followed by the opponent completing a turn
+            self.halfmove_clock += 1
+
+    def _on_piece_taken(self, piece, **kwargs):
+        # Reset the halfmove clock
+        self.halfmove_clock = 0
 
     def __init_grid_str(self):
         """
@@ -234,6 +255,13 @@ class Board:
             self._on_piece_move(sender, **kwargs)
         self.handle_piece_move = handle_piece_move
         signals.PIECE_MOVE.connect(handle_piece_move)
+
+        # Piece take
+        def handle_piece_taken(sender, **kwargs):
+            self._on_piece_taken(sender, **kwargs)
+
+        self.handle_piece_taken = handle_piece_taken
+        signals.PIECE_TAKEN.connect(handle_piece_taken)
 
     def get_cell(self, rank, file):
         return self.ranks[rank][file]
@@ -365,6 +393,9 @@ class Board:
         return isinstance(other, Board) and self.__state_hash__() == other.__state_hash__()
 
     def __state_hash__(self):
+        """
+        The hash of the state of the board. Takes the position of the pieces, the castling availability, the turn, the en passant square and the fullmove and halfmove clocks into account.
+        """
         pos = ""
         for rank in self.ranks:
             for piece in rank:
@@ -400,6 +431,46 @@ class Board:
                 castling += "q"
 
         return hash((self.shape, pos, self.turn, castling, self.en_passant, self.halfmove_clock, self.fullmove_nb))
+
+    def __position_hash__(self):
+        """
+        The hash of the position of the board, taking into account the turn, castling and en passant
+        """
+        pos = ""
+        for rank in self.ranks:
+            for piece in rank:
+                if piece is None:
+                    pos += " "
+                else:
+                    pos += piece.san
+
+        castling = ""
+        # TODO: Better checks for castling
+        # White castling
+        if self.white.king is not None and not self.white.king.has_moved:
+            # King side (h1)
+            rook = self.ranks[0][7]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "K"
+
+            # Queen side (a1)
+            rook = self.ranks[0][0]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "Q"
+
+        # Black castling
+        if self.black.king is not None and not self.black.king.has_moved:
+            # King side (h8)
+            rook = self.ranks[7][7]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "k"
+
+            # Queen side (a8)
+            rook = self.ranks[7][0]
+            if rook is not None and isinstance(rook, pieces.Rook) and not rook.has_moved:
+                castling += "q"
+
+        return hash((pos, self.turn, castling, self.en_passant))
 
     def __repr__(self):
         return "<Board shape={}, state_hash='{}' fen='{}', white={}, black={}>".format(str(self.shape), str(self.__state_hash__()), self.to_fen(), self.white
