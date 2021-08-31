@@ -1,5 +1,12 @@
 [run]
-omit = pychess/main.py
+omit =
+    pychess/main.py
+
+    # Abstract class for UI
+    pychess/ui/abstractui.py
+
+    # Abstract class for variants
+    pychess/variants/variant.py
 
 [report]
 skip_empty = true
